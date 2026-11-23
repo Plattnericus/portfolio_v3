@@ -1,0 +1,187 @@
+{
+  "person": {
+    "name": "Nexor",
+    "alias": "Plattnericus",
+    "role": "Fullstack developer",
+    "focus": [
+      "Fullstack",
+      "DevOps",
+      "Cybersecurity"
+    ],
+    "intro": "I build software that actually runs.",
+    "outro": "Mostly with friends.",
+    "email": "mailme@plattnericus.dev",
+    "crew": [
+      "Ryhox",
+      "Ottooris"
+    ]
+  },
+  "site": {
+    "url": "https://plattnericus.dev",
+    "title": "Nexor / Plattnericus",
+    "description": "Fullstack developer: web apps, 3D on the web, DevOps and security. Real projects, deployed and running: a school platform, 3D web experiences, self-hosting and Minecraft mods.",
+    "locale": "en_US",
+    "themeColor": "#9ed6ff"
+  },
+  "github": {
+    "user": "Plattnericus"
+  },
+  "links": [
+    {
+      "label": "GitHub",
+      "href": "https://github.com/Plattnericus"
+    },
+    {
+      "label": "Modrinth",
+      "href": "https://modrinth.com/user/Plattnericus"
+    }
+  ],
+  "skills": [
+    {
+      "group": "Web",
+      "items": [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "JavaScript",
+        "Vite"
+      ]
+    },
+    {
+      "group": "3D on the web",
+      "items": [
+        "Three.js",
+        "React Three Fiber",
+        "GLSL",
+        "Neural simulation"
+      ]
+    },
+    {
+      "group": "Backend and realtime",
+      "items": [
+        "Node.js",
+        "Socket.IO",
+        "Grid algorithms"
+      ]
+    },
+    {
+      "group": "DevOps and security",
+      "items": [
+        "Docker",
+        "Cloudflare",
+        "Self-hosting",
+        "Raspberry Pi"
+      ]
+    },
+    {
+      "group": "Mods",
+      "items": [
+        "Java",
+        "Fabric"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "repo": "bedchem/POKYH",
+      "title": "POKYH",
+      "kind": "School platform",
+      "summary": "Timetable, grades, absences and messages for real students.",
+      "tech": [
+        "Next.js",
+        "TypeScript",
+        "Docker",
+        "Cloudflare"
+      ],
+      "live": "https://pokyh.com",
+      "poster": "/work/pokyh.webp",
+      "clip": "/work/pokyh.mp4"
+    },
+    {
+      "repo": "bedchem/fruit-fly-hub",
+      "title": "Fly Lab",
+      "kind": "Real fly brain",
+      "summary": "A real fruit-fly brain, 60,001 neurons, live in the browser.",
+      "tech": [
+        "React Three Fiber",
+        "Three.js",
+        "Neural simulation",
+        "Vite"
+      ],
+      "live": "https://fly.pokyh.com",
+      "poster": "/work/fly-lab.webp",
+      "clip": "/work/fly_lab.mp4"
+    },
+    {
+      "repo": "Plattnericus/Stargazer_Tree",
+      "title": "Stargazer Tree",
+      "kind": "3D web experience",
+      "summary": "GitHub stars, grown into a living WebGL world.",
+      "tech": [
+        "Next.js",
+        "Three.js",
+        "React Three Fiber",
+        "GLSL"
+      ],
+      "live": "https://threejs.plattnericus.dev",
+      "poster": "/work/threejs-portfolio.webp",
+      "clip": "/work/threejs_portfolio.mp4"
+    },
+    {
+      "repo": "Plattnericus/StreamDeck",
+      "title": "StreamDeck",
+      "kind": "Browser desktop",
+      "summary": "A whole desktop inside a browser tab.",
+      "tech": [
+        "React",
+        "JavaScript",
+        "Desktop UI"
+      ],
+      "live": "https://streamdeck.plattnericus.dev/desktop",
+      "poster": "/work/streamdeck.webp",
+      "clip": "/work/streamdeck.mp4"
+    },
+    {
+      "repo": "bedchem/Magic-Mirror",
+      "title": "Magic-Mirror",
+      "kind": "Self-hosted smart display",
+      "summary": "A calm smart display on a Raspberry Pi.",
+      "tech": [
+        "Node.js",
+        "JavaScript",
+        "Raspberry Pi"
+      ],
+      "live": "https://magicmirror.plattnericus.dev",
+      "poster": "/work/magic-mirror.webp",
+      "clip": "/work/magicmirror.mp4"
+    },
+    {
+      "repo": "bedchem/Minesweeper",
+      "title": "Minesweeper",
+      "kind": "Classic, multiplayer",
+      "summary": "The classic, rebuilt as real-time multiplayer.",
+      "tech": [
+        "JavaScript",
+        "Socket.IO",
+        "Grid algorithms"
+      ],
+      "live": "https://minesweeper.plattnericus.dev",
+      "poster": "/work/minesweeper.webp",
+      "clip": "/work/minesweeper.mp4"
+    },
+    {
+      "repo": "Ryhox/ProjectilePreview-Mod",
+      "title": "ProjectilePreview",
+      "kind": "Minecraft mod",
+      "summary": "See where every arrow lands before you shoot.",
+      "tech": [
+        "Java",
+        "Fabric",
+        "Modding"
+      ],
+      "live": "https://modrinth.com/mod/projectile.preview",
+      "poster": "/work/projectilepreview-mod.webp",
+      "clip": "/work/projectile_preview.mp4"
+    }
+  ]
+}
