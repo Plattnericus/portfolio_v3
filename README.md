@@ -292,8 +292,10 @@ npm run lint
 
 ## Deployment
 
-The project deploys to Vercel as is, with the Next.js preset and no extra
-settings; `vercel build` passes from a clean checkout. Set `NEXT_PUBLIC_SITE_URL`
+The project deploys to Vercel as is; `vercel.json` pins the Next.js framework
+preset, so a project set to "Other" still builds the app instead of serving only
+`public/` (which shows up as `404 NOT_FOUND` on every page route).
+`vercel build` passes from a clean checkout. Set `NEXT_PUBLIC_SITE_URL`
 if the canonical domain differs from the project's production domain, and
 `GITHUB_TOKEN` so builds and revalidations do not share the anonymous GitHub
 rate limit. Any host that runs `next start` works the same way.
