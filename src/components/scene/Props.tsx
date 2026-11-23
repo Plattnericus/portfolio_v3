@@ -41,32 +41,18 @@ import {
 import { useRoadGrid } from "./Nature";
 import { chime, pop } from "@/lib/sound";
 import { EVENTS, emit, world } from "@/lib/world";
-import { BUDGET, detectTier, type Budget } from "@/lib/quality";
+import { detectTier, type Budget } from "@/lib/quality";
+import { SETS, modelConfig, modelUrl, needsSet, type ModelSet } from "@/lib/models";
 
-/** Model URLs carry a content hash of the model files (see next.config.ts), so they can be cached for good. */
-const rev = process.env.NEXT_PUBLIC_MODEL_REV;
-/** Sets with a light variant: same nodes, light meshes. Light tiers never download the full ones. */
-const liteSets = new Set((process.env.NEXT_PUBLIC_MODEL_LITE ?? "").split(",").filter(Boolean));
-const tier = typeof window === "undefined" ? null : BUDGET[detectTier()];
-const light = !!tier?.lod;
-const model = (name: string) => `/models/${name}${light && liteSets.has(name) ? ".lite" : ""}.glb${rev ? `?v=${rev}` : ""}`;
-
-export const MODELS = {
-  candy: model("candy"),
-  unicorn: model("unicorn"),
-  frog: model("frog"),
-  smiley: model("smiley"),
-  sea: model("sea"),
-  sky: model("sky"),
-  nature: model("nature"),
-  castle: model("castle"),
-  letters: model("letters"),
-  sign: model("sign"),
-  animals: model("animals"),
-  village: model("village"),
-  far: model("far"),
-  min: model("min"),
-};
+/**
+ * Model URLs for this visit's tier: light variants on phones, and a content hash
+ * of the model files (see next.config.ts), so they can be cached for good.
+ */
+const tier = typeof window === "undefined" ? "high" : detectTier();
+export const MODELS = Object.fromEntries(SETS.map((name) => [name, modelUrl(modelConfig, name, tier)])) as Record<
+  ModelSet,
+  string
+>;
 
 type Nodes = Record<string, THREE.Mesh>;
 
@@ -76,8 +62,7 @@ export function useNodes(url: string) {
 
 /** Everything the tier draws; the "Min" twins only on the oldest phones. */
 export function preloadModels() {
-  const min = (tier?.detail ?? 0) >= 2;
-  Object.values(MODELS).forEach((url) => (url !== MODELS.min || min) && useGLTF.preload(url));
+  for (const name of SETS) if (needsSet(modelConfig, name, tier)) useGLTF.preload(MODELS[name]);
 }
 
 /** "Min" twins on the oldest phones; elsewhere an already loaded file that has none. */

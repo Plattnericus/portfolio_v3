@@ -231,13 +231,14 @@ export default function Loader({ lines }: { lines: string[] }) {
 
       // never trap anyone behind the loader: let go when loading stalls, and on
       // a very slow line after a while anyway, while it still makes progress
-      let stall = window.setTimeout(finish, 12000);
+      // (progress arrives once the scene's code has loaded, so the first wait is the longest)
+      let stall = window.setTimeout(finish, 20000);
       const cap = window.setTimeout(finish, 45000);
       const onProgress = (e: Event) => {
         target = Math.max(target, Math.min(96, (e as CustomEvent<number>).detail ?? 0));
         if (!done) chase(target);
         window.clearTimeout(stall);
-        stall = window.setTimeout(finish, 12000);
+        stall = window.setTimeout(finish, 20000);
       };
       window.addEventListener(EVENTS.progress, onProgress);
       window.addEventListener(EVENTS.ready, finish);

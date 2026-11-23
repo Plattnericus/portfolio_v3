@@ -22,6 +22,7 @@ A candy island built in Blender, rendered live with three.js and flown through b
   <a href="#how-it-works">How it works</a> ·
   <a href="#performance">Performance</a> ·
   <a href="#getting-started">Getting started</a> ·
+  <a href="#deployment">Deployment</a> ·
   <a href="#project-structure">Structure</a>
 </p>
 
@@ -33,7 +34,7 @@ A candy island built in Blender, rendered live with three.js and flown through b
   <tr>
     <td align="center" width="180"><h3>7</h3><sub>projects, each playing<br />a clip on its own sign</sub></td>
     <td align="center" width="180"><h3>100+</h3><sub>moves for every character,<br />picked by how you scroll</sub></td>
-    <td align="center" width="180"><h3>3.8 MB</h3><sub>for the whole island,<br />meshopt + gzip</sub></td>
+    <td align="center" width="180"><h3>3.8 MB</h3><sub>for the whole island,<br />2.2 MB on phones</sub></td>
     <td align="center" width="180"><h3>120 fps</h3><sub>scrolling the whole page<br />on a 120 Hz display</sub></td>
   </tr>
 </table>
@@ -176,25 +177,32 @@ soft body.
 
 ### Physics
 
-Rapier loads in its own chunk. The island is a coarse static trimesh, gumdrops
-and candy rain collide as boxes, and the letters keep their rotation locked so
-the word stays readable; their wobble is a spring on the visible mesh. The world
-is only stepped while a body is awake, so once everything has settled it costs
-nothing.
+Rapier is by far the largest download (1.6 MB gzipped), and nothing needs it
+before the meadow, so it arrives after the intro, in an idle moment. Its shaders
+are compiled with everything else behind the loader. Only the 404, which opens
+on the letters, loads it up front. The island is a coarse static trimesh,
+gumdrops and candy rain collide as boxes, and the letters keep their rotation
+locked so the word stays readable; their wobble is a spring on the visible mesh.
+The world is only stepped while a body is awake, so once everything has settled
+it costs nothing.
 
 ### Offline and caching
 
 Fonts, models and clips are served by the site itself, and nothing is loaded
-from a CDN at runtime. Model URLs carry a content hash of the model files, computed in
-[`next.config.ts`](next.config.ts), so browsers keep them for a year and a
-changed model gets a new URL. Clips are sent with `must-revalidate`, so a new
-deploy reaches everyone at once and unchanged files cost a 304.
+from a CDN at runtime. Models are stored gzipped (`*.glb.gz`) and sent with
+`Content-Encoding: gzip`, so they arrive compressed on any host, including ones
+that only compress text. Their URLs carry a content hash of the model files,
+computed in [`next.config.ts`](next.config.ts), so browsers keep them for a year
+and a changed model gets a new URL. Clips are sent with `must-revalidate`, so a
+new deploy reaches everyone at once and unchanged files cost a 304.
 
 ### SEO
 
-Canonical URLs, Open Graph and Twitter images, JSON-LD for the person, the site
-and every project with its repository, `robots.txt`, `sitemap.xml` with project
-images, a web manifest and a full icon set.
+Canonical URLs, Open Graph and Twitter images on every route, JSON-LD for the
+person, the site and every project with its repository, `robots.txt`,
+`sitemap.xml` with project images, a web manifest and a full icon set. The 404
+is `noindex` without a canonical. Every word is in the server-rendered HTML,
+and without JavaScript the page skips the loader and stays readable.
 
 ## Performance
 
@@ -208,15 +216,18 @@ Save-Data and the GPU name. `?quality=low|mid|high` forces one.
 | Grass blades | 90,000 | 26,000 | 4,000 |
 | Animals | 53 | 30 | 14 |
 | Petals, pebbles, mushrooms, reeds | 420, 170, 60, 130 | 180, 90, 30, 70 | 0, 36, 12, 28 |
-| Models | full up close, light twins far away | "Lo" twins | "Min" twins |
+| Model download | 3.8 MB | 2.2 MB | 2.6 MB |
+| Models | full sets, light twins far away | light sets (`*.lite.glb.gz`) | light sets plus "Min" twins |
 | Clearcoat, sheen, thin film | all three | clearcoat and sheen | none |
 | Contact shadows | baked once | baked once | off |
 | Project clips | all, after the intro | all, after the intro | only signs near the camera |
 | DPR cap | 1.75 | 1.25 | 1.0 |
 
 Triangles and draw calls are the range over 13 stops along the home page.
-Distance twins (`far.glb`) are used on every tier; the phone twins (`lod.glb`)
-are only downloaded on mid and low.
+Distance twins (`far.glb.gz`) are used on every tier. Phones never download the
+full sets: each light set has the same nodes with lighter meshes, so the scene
+reads both the same way. Which sets have a light variant is read from the files
+at build time.
 
 What keeps the scroll smooth:
 
@@ -244,14 +255,23 @@ or iPhone 6s.
 
 | Device | Tier | Result |
 | --- | --- | --- |
-| MacBook, 120 Hz display, Chrome | high | 120 fps both ways, 0 of 3118 frames over 12 ms, p99 9.3 ms |
+| MacBook, 120 Hz display, Chrome | high | 120 fps both ways, 1 of 3117 frames over 12 ms, p99 10.2 ms |
 | Desktop 1440 x 900 at 2x, headless | high | 60 fps (headless cap) |
 | Phone 390 x 844 at 3x, CPU 4x slower | mid | 59 fps |
 | Old phone 360 x 640 at 2x, CPU 6x slower | low | 58 fps, p95 16.8 ms |
-| Very old phone 360 x 640 at 2x, CPU 10x slower | low | 47 to 52 fps |
+| Very old phone 360 x 640 at 2x, CPU 10x slower | low | 52 fps |
 
-From navigation to the map: about 2.3 s on desktop and 3.9 s on the emulated
-old phone. Real phones have not been measured yet.
+From navigation to the map, on the same build:
+
+| Device and network | Tier | Map after |
+| --- | --- | --- |
+| Desktop, no throttling | high | 2.1 s |
+| Phone, CPU 4x slower, fast 4G (9 Mbps) | mid | 5.3 s |
+| Old phone, CPU 6x slower, fast 4G | low | 5.7 s |
+| Phone, CPU 4x slower, slow 4G (1.6 Mbps) | mid | 17 s |
+
+The first paint comes after 0.3 s on fast 4G and 0.6 s on slow 4G. Layout
+shift stays under 0.01. Real phones have not been measured yet.
 
 Touch devices keep native scrolling. `prefers-reduced-motion` turns off smooth
 scrolling and softens every animation.
@@ -270,13 +290,21 @@ npm run build && npm start
 npm run lint
 ```
 
+## Deployment
+
+The project deploys to Vercel as is, with the Next.js preset and no extra
+settings; `vercel build` passes from a clean checkout. Set `NEXT_PUBLIC_SITE_URL`
+if the canonical domain differs from the project's production domain, and
+`GITHUB_TOKEN` so builds and revalidations do not share the anonymous GitHub
+rate limit. Any host that runs `next start` works the same way.
+
 ## Configuration
 
 Everything is optional. Put what you need into `.env.local`.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | `site.url` in the content file | Canonical URL, Open Graph, sitemap |
+| `NEXT_PUBLIC_SITE_URL` | the Vercel production domain, else `site.url` in the content file | Canonical URL, Open Graph, sitemap |
 | `GITHUB_USER` | `github.user` in the content file | Whose profile and repositories to read |
 | `GITHUB_TOKEN` | none | Raises the GitHub API rate limit |
 
@@ -290,7 +318,7 @@ clip into `public/work/`. The first seven projects get a sign on the trail.
 src/
   app/                    routes, metadata, icons, OG images, robots, sitemap, manifest
   content/portfolio.json  everything the page says
-  lib/                    GitHub data, scroll, sound, quality tiers, shared state
+  lib/                    GitHub data, scroll, sound, quality tiers, model URLs, shared state
   components/
     Loader.tsx, syrup.ts  loading screen and its wave worker
     Experience.tsx        Lenis, ScrollTrigger and section state for every route
@@ -300,8 +328,9 @@ src/
     scene/                terrain, sea, sky, props, characters, physics, camera
   fonts/                  Fredoka, self-hosted (SIL OFL 1.1)
 public/
-  models/                 meshopt-compressed GLB sets, far.glb (distance twins),
-                          lod.glb (phone twins)
+  models/                 GLB sets, meshopt-compressed and gzipped (*.glb.gz),
+                          light sets for phones (*.lite.glb.gz), far (distance
+                          twins), min (twins for the oldest phones)
   work/                   project clips, plus posters for search and link previews
 ```
 

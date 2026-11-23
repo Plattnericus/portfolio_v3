@@ -113,27 +113,10 @@ export const BUDGET = {
 
 export type Budget = (typeof BUDGET)[Tier];
 
-/** GPUs that need the lightest setting even on a fast-looking device. */
-const OLD_GPU = /mali-(4|t[6-8]|g31|g51|g52)|adreno \(tm\) ([1-5]\d\d|60\d|61\d)|powervr|sgx|videocore|intel\(r\) (hd|uhd) graphics (2|3|4|5)\d{2,3}?\b|swiftshader|llvmpipe/i;
-
-function gpuName() {
-  try {
-    const gl = document.createElement("canvas").getContext("webgl");
-    if (!gl) return "";
-    const ext = gl.getExtension("WEBGL_debug_renderer_info");
-    const name = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : "";
-    gl.getExtension("WEBGL_lose_context")?.loseContext();
-    return name;
-  } catch {
-    return "";
-  }
-}
-
 let detected: Tier | null = null;
 
 /**
- * Cheap, synchronous guess from the device and its GPU, made once per visit:
- * the model files depend on it. `?quality=low|mid|high` overrides it. At
+ * The tier for this visit, decided once: the model files depend on it. At
  * runtime the governor only trades resolution and density, never the tier.
  */
 export function detectTier(): Tier {
@@ -142,16 +125,33 @@ export function detectTier(): Tier {
   return detected;
 }
 
+/** Cheap, synchronous guess from the device and its GPU; `?quality=low|mid|high` overrides it. */
 function guessTier(): Tier {
   const forced = new URLSearchParams(window.location.search).get("quality");
   if (forced === "high" || forced === "mid" || forced === "low") return forced;
+
+  // GPUs that need the lightest setting even on a fast-looking device
+  const oldGpu =
+    /mali-(4|t[6-8]|g31|g51|g52)|adreno \(tm\) ([1-5]\d\d|60\d|61\d)|powervr|sgx|videocore|intel\(r\) (hd|uhd) graphics (2|3|4|5)\d{2,3}?\b|swiftshader|llvmpipe/i;
+  const gpuName = () => {
+    try {
+      const gl = document.createElement("canvas").getContext("webgl");
+      if (!gl) return "";
+      const ext = gl.getExtension("WEBGL_debug_renderer_info");
+      const name = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : "";
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      return name;
+    } catch {
+      return "";
+    }
+  };
 
   const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const cores = nav.hardwareConcurrency ?? 8;
   const mem = nav.deviceMemory ?? 8;
 
-  if (nav.connection?.saveData || mem <= 2 || OLD_GPU.test(gpuName()) || (coarse && cores <= 4)) return "low";
+  if (nav.connection?.saveData || mem <= 2 || oldGpu.test(gpuName()) || (coarse && cores <= 4)) return "low";
   if (coarse || cores <= 4 || mem <= 4) return "mid";
   return "high";
 }

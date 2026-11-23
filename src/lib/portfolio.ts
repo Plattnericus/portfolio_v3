@@ -79,7 +79,14 @@ async function gh<T>(path: string): Promise<T | null> {
   }
 }
 
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? content.site.url).replace(/\/$/, "");
+/**
+ * Canonical origin: set explicitly, else the production domain Vercel reports
+ * for the project, else the one in the content file.
+ */
+const vercelDomain = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+export const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? (vercelDomain ? `https://${vercelDomain}` : content.site.url)
+).replace(/\/$/, "");
 export const site = content.site;
 export const person = content.person;
 export const githubUser = process.env.GITHUB_USER ?? content.github.user;
